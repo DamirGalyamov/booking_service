@@ -1,0 +1,41 @@
+services:
+  postgres:
+    image: postgres:18
+
+    environment:
+      POSTGRES_DB: booking
+      POSTGRES_USER: booking
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql
+      - ./docker/init.sql:/docker-entrypoint-initdb.d/001-init.sql:ro
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U booking -d booking"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: .
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    environment:
+      BOOKING_DB_CONNECTION: "host=postgres port=5432 dbname=booking user=booking password=${POSTGRES_PASSWORD}"
+      BOOKING_PORT: "8080"
+      BOOKING_WORKERS: "4"
+      BOOKING_POOL_SIZE: "4"
+
+    ports:
+      - "8080:8080"
+
+
+volumes:
+  postgres_data:
