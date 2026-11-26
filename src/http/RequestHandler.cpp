@@ -102,7 +102,7 @@ Response RequestHandler::handle_book(const Request& request) const {
 	}
 	if (request_json.contains("end_time")) {
 		if (request_json.at("end_time").is_string()) {
-			start_time = request_json.at("end_time").get<std::string>();
+			end_time = request_json.at("end_time").get<std::string>();
 		}
 		else {
 			return handle_bad_request(request);

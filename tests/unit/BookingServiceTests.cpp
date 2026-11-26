@@ -184,23 +184,9 @@ TEST(
 		"2026-09-10T10:00:00Z",
 		"2026-09-10T12:00:00Z"
 	};
-	std::chrono::sys_seconds start_time;
-	{
-		std::istringstream stream(dto.start_time);
-		std::chrono::from_stream(
-			stream,
-			"%Y-%m-%dT%H:%M:%SZ",
-			start_time);
-	}
-	std::chrono::sys_seconds end_time;
-	{
-		std::istringstream stream(dto.end_time);
-		std::chrono::from_stream(
-			stream,
-			"%Y-%m-%dT%H:%M:%SZ",
-			end_time);
-	}
-	repository.create_result = Booking{
+	const auto start_time = std::chrono::sys_days{std::chrono::year{2026}/9/10} + std::chrono::hours{10};
+const auto end_time = start_time + std::chrono::hours{2};
+repository.create_result = Booking{
 		1,
 		dto.resource_id,
 		start_time,
@@ -212,4 +198,26 @@ TEST(
 		CreateBookingStatus::created
 	);
 
+}
+#include "../../src/http/Router.hpp"
+TEST(HttpRegression, ValidBookingReachesRepository) {
+    FakeBookingRepository repository;
+    repository.create_result = Booking{1, 7, {}, {}};
+    BookingService service(repository);
+    RequestHandler handler(service);
+    Router router(handler);
+    Request request{http::verb::post, "/book", 11};
+    request.body() = R"({"resource_id":7,"start_time":"2026-09-10T10:00:00Z","end_time":"2026-09-10T12:00:00Z"})";
+    auto response = router.route(request);
+    EXPECT_EQ(response.result(), http::status::created);
+    EXPECT_EQ(repository.try_create_calls, 1);
+}
+TEST(HttpRegression, InvalidJsonIsRejected) {
+    FakeBookingRepository repository;
+    BookingService service(repository);
+    RequestHandler handler(service);
+    Request request{http::verb::post, "/book", 11};
+    request.body() = "{";
+    EXPECT_EQ(handler.handle_book(request).result(), http::status::bad_request);
+    EXPECT_EQ(repository.try_create_calls, 0);
 }

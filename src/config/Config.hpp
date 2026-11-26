@@ -16,4 +16,4 @@ Config load_config();
 std::size_t parse_positive_number(
 	const char* text,
 	const std::string& variable_name
-)
+);

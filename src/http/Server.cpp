@@ -29,6 +29,7 @@ void Server::handle_connection(tcp::socket& socket) {
 
 		response = make_internal_error_response(request);
 	}
+	response.keep_alive(false);
 	http::write(socket, response, ec);
 	if (ec) {
 		logger_.error(

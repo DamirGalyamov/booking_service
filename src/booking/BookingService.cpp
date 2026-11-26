@@ -55,18 +55,15 @@ std::optional<NewBooking> BookingService::prepare_booking(
 std::optional<std::chrono::sys_seconds>
 BookingService::parse_utc_time(const std::string& text) const {
 	if (!has_utc_time_shape(text)) return std::nullopt;
-	std::istringstream stream(text);
-	std::chrono::sys_seconds time;
-	std::chrono::from_stream(
-		stream,
-		"%Y-%m-%dT%H:%M:%SZ",
-		time
-	);
-	if (stream.fail())
-	{
-		return std::nullopt;
-	}
-	return time;
+	const int year = std::stoi(text.substr(0, 4));
+    const unsigned month = std::stoul(text.substr(5, 2));
+    const unsigned day = std::stoul(text.substr(8, 2));
+    const int hour = std::stoi(text.substr(11, 2));
+    const int minute = std::stoi(text.substr(14, 2));
+    const int second = std::stoi(text.substr(17, 2));
+    const std::chrono::year_month_day date{std::chrono::year{year}, std::chrono::month{month}, std::chrono::day{day}};
+    if (!date.ok() || hour > 23 || minute > 59 || second > 59) return std::nullopt;
+    return std::chrono::sys_days{date} + std::chrono::hours{hour} + std::chrono::minutes{minute} + std::chrono::seconds{second};
 }
 
 bool BookingService::has_utc_time_shape(const std::string& text) const {

@@ -53,3 +53,5 @@ include(GoogleTest)
 gtest_discover_tests(
     booking_unit_tests
 )
+target_sources(booking_unit_tests PRIVATE src/http/RequestHandler.cpp src/http/Router.cpp)
+target_link_libraries(booking_unit_tests PRIVATE nlohmann_json::nlohmann_json Boost::beast)
