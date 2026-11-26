@@ -33,42 +33,42 @@ API
 Ping
 GET/ ping
 
-Response:
+Ответ:
 {
  "status": "ok"
 }
 
-Create booking
+Создание брони
 POST/ book
 Content-Type: application/json
 
-Example request
+Пример запроса
 {
   "resource_id": 1,
   "start_time": "2026-09-10T10:00:00Z",
   "end_time": "2026-09-10T12:00:00Z"
 }
 
-Possible responses:
+Возможные ответы:
 201 Created — booking created
 400 Bad Request — invalid input
 409 Conflict — overlapping booking already exists
 500 Internal Server Error — unexpected server failure
 
-List bookings
+Список бронирования
 GET /bookings
 
 
 
-Delete booking
+Удаление брони
 DELETE /bookings/{id}
 
-Possible responses:
+Возможные ответы:
 204 No Content — booking deleted
 400 Bad Request — invalid booking ID
 404 Not Found — booking does not exist
 
-Requirements
+Требования
 
 C++20 compiler
 CMake 3.20+
@@ -76,15 +76,15 @@ vcpkg
 Docker / Docker Compose
 PostgreSQL
 
-Main libraries:
+Основные библиотеки:
 Boost.Asio
 Boost.Beast
 libpqxx
 nlohmann/json
 GoogleTest
 
-Configuration
-The application reads its configuration from environment variables:
+Конфигурация
+Приложение считывает свою конфигурацию из переменных окружения:
 
 BOOKING_DB_CONNECTION
 BOOKING_PORT
@@ -93,31 +93,31 @@ BOOKING_POOL_SIZE
 
 
 
-Example for PowerShell:
+Пример для PowerShell:
 
 $env:BOOKING_DB_CONNECTION = "host=127.0.0.1 port=5433 dbname=booking user=booking password=booking_dev"
 $env:BOOKING_PORT = "8080"
 $env:BOOKING_WORKERS = "4"
 $env:BOOKING_POOL_SIZE = "4"
 
-Build
+Сборка
 Configure the project:
 cmake --preset local-debug
 
-Build:
+Сборка:
 cmake --build build/local-debug --config Debug
 
-Run:
+Запуск:
 .\build\local-debug\Debug\booking_service.exe
 PostgreSQL
 
-Start PostgreSQL:
+Старт PostgreSQL:
 docker compose up -d
-The local development setup exposes PostgreSQL on port 5433.
+В среде локальной разработки PostgreSQL доступен через порт 5433.
 
-Tests
-The project contains unit tests for BookingService.
-The tests use a fake implementation of IBookingRepository, so PostgreSQL is not required for unit testing.
+Тесты
+В проекте содержатся модульные тесты для BookingService.
+В тестах используется фиктивная реализация IBookingRepository, поэтому для модульного тестирования PostgreSQL не требуется.
 
-Run tests:
+Запуск тестов:
 ctest --test-dir build/local-debug -C Debug --output-on-failure
